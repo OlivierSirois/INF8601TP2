@@ -31,6 +31,7 @@ static cl_program prog = NULL;
 static cl_kernel kernel = NULL;
 
 static cl_mem output = NULL;
+static cl_mem sinoscope = NULL;
 
 int get_opencl_queue()
 {
@@ -134,8 +135,18 @@ int create_buffer(int width, int height)
     /*
      * TODO: initialiser la memoire requise avec clCreateBuffer()
      */
+
     cl_int ret = 0;
-    goto error;
+    output = clCreateBuffer(context,CL_MEM_WRITE_ONLY,width*height*sizeof(unsigned char)*3,NULL,&ret);
+    if(ret!=CL_SUCCESS)
+        goto error;
+    ERR_THROW(CL_SUCCESS, ret, "clCreateBuffer failed");
+    sinoscope = clCreateBuffer(context,CL_MEM_READ_ONLY,sizeof(sinoscope_t),NULL,&ret);
+    if(ret!=CL_SUCCESS)
+        goto error;
+    ERR_THROW(CL_SUCCESS, ret, "clCreateBuffer failed");
+
+    //goto error;
 done:
     return ret;
 error:
@@ -183,6 +194,11 @@ void opencl_shutdown()
     /*
      * TODO: liberer les ressources allouees
      */
+
+    if (output) clReleaseMemObject(output);
+    if (sinoscope) clReleaseMemObject(sinoscope);
+    if (kernel) clReleaseKernel(kernel);
+    if (prog) clReleaseProgram(prog);
 }
 
 int sinoscope_image_opencl(sinoscope_t *ptr)
@@ -209,9 +225,25 @@ int sinoscope_image_opencl(sinoscope_t *ptr)
 
     cl_int ret = 0;
     cl_event ev;
-
     if (ptr == NULL)
         goto error;
+
+    size_t work_dim[2];
+    work_dim[0] = ptr->width;
+    work_dim[1] = ptr->height;
+
+    ret = clEnqueueWriteBuffer(queue,sinoscope,CL_TRUE,0,sizeof(sinoscope_t),ptr,0,NULL,NULL);
+    ERR_THROW(CL_SUCCESS, ret, "clEnqueueWriteBuffer failed");
+    ret = clSetKernelArg(kernel,0,sizeof(cl_mem), &output);
+    ERR_THROW(CL_SUCCESS, ret, "clSetKernelArg output failed");
+    ret = clSetKernelArg(kernel,1,sizeof(cl_mem),&sinoscope);
+    ERR_THROW(CL_SUCCESS, ret, "clSetKernelArg sinoscope failed");
+    ret = clEnqueueNDRangeKernel(queue,kernel,2,NULL,work_dim,NULL,0,NULL,NULL);
+    ERR_THROW(CL_SUCCESS, ret, "clEnqueueNDRangeKernel failed");
+    ret = clFinish(queue);
+    ERR_THROW(CL_SUCCESS, ret, "clFinish failed");
+    ret = clEnqueueReadBuffer(queue,output,CL_TRUE,0,ptr->buf_size,ptr->buf,0,NULL,NULL);
+    ERR_THROW(CL_SUCCESS, ret, "clEnqueueReadBuffer failed");
 
 done:
     return ret;
