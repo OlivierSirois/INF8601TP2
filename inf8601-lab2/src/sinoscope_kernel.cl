@@ -109,3 +109,4 @@ __kernel void sinoscope_kernel(__global unsigned char* buf, __global const sinos
     buf[index + 1] = c.g;
 buf[index + 2] = c.b;
 }
+ 
