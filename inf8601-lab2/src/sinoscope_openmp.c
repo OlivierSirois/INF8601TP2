@@ -42,11 +42,10 @@ int sinoscope_image_openmp(sinoscope_t *ptr)
             val = (val + 1) * 100;
 
 	    // Ajout de la section critical. La fonction value_color n'est pas threadsafe. C'est la source du bruit de notre image lorsqu'on execute notre animation avec
-	    // OpenMP
-	    #pragma omp critical
-	    {
-            value_color(&c, val, sino.interval, sino.interval_inv);
-            }
+	    // OpenM
+	    
+        value_color(&c, val, sino.interval, sino.interval_inv);
+            
       }
 
     }

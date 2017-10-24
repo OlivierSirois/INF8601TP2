@@ -1,6 +1,6 @@
 running check
 done
-this is thread 1this is thread 0this is thread 0this is thread 1PASS fast
+PASS fast
 PASS slow_a
 PASS slow_b
 PASS slow_c

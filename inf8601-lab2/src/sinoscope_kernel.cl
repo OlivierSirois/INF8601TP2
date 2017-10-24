@@ -21,17 +21,19 @@ typedef struct sinoscope sinoscope_t;
 
 struct sinoscope {
 	unsigned char *buf;
-	int width;
-	int height;
-	int interval;
-	int taylor;
-	float interval_inv;
-	float time;
-	float max;
-	float phase0;
-	float phase1;
-	float dx;
-	float dy;
+    char *name;
+    int buf_size;
+    int width;
+    int height;
+    int interval;
+    int taylor;
+    float interval_inv;
+    float time;
+    float max;
+    float phase0;
+    float phase1;
+    float dx;
+    float dy;
 };
 
 struct rgb {
@@ -107,6 +109,6 @@ __kernel void sinoscope_kernel(__global unsigned char* buf, __global const sinos
     index = (y * 3) + (x * 3) * sinoscope->width;
     buf[index + 0] = c.r;
     buf[index + 1] = c.g;
-buf[index + 2] = c.b;
+	buf[index + 2] = c.b;
 }
  
