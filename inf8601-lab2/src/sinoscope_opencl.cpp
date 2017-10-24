@@ -138,12 +138,8 @@ int create_buffer(int width, int height)
 
     cl_int ret = 0;
     output = clCreateBuffer(context,CL_MEM_WRITE_ONLY,width*height*sizeof(unsigned char)*3,NULL,&ret);
-    if(ret!=CL_SUCCESS)
-        goto error;
     ERR_THROW(CL_SUCCESS, ret, "clCreateBuffer failed");
     sinoscope = clCreateBuffer(context,CL_MEM_READ_ONLY,sizeof(sinoscope_t),NULL,&ret);
-    if(ret!=CL_SUCCESS)
-        goto error;
     ERR_THROW(CL_SUCCESS, ret, "clCreateBuffer failed");
 
     //goto error;
